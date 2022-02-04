@@ -14,7 +14,7 @@ void printins(unsigned int tabcount, const Json::Value& instrs)
       /* insert indent for function ins */
       for (int tc=0; tc<tabcount; tc++)
         std::cout<<"\t";
-      std::cout<<instrs[i]["dest"] << ": " << instrs[i]["value"] << std::endl;
+      std::cout<<instrs[i]["dest"].asString() << std::endl;
     }
     else if(instrs[i]["funcs"] != Json::nullValue)
     {
@@ -24,8 +24,8 @@ void printins(unsigned int tabcount, const Json::Value& instrs)
         /* insert indent for function ins */
         for (int tc=0; tc<tabcount; tc++)
           std::cout<<"\t";
-        std::cout<<instrs[i]["args"][j];
-        std::cout<<"-> "<<instrs[i]["funcs"][0]; /* 0 harcoded since there can only be one function call */
+        std::cout<<instrs[i]["args"][j].asString();
+        std::cout<<"-> "<<instrs[i]["funcs"][0].asString(); /* 0 harcoded since there can only be one function call */
         std::cout<<std::endl;
       }
     }
@@ -35,9 +35,9 @@ void printins(unsigned int tabcount, const Json::Value& instrs)
       /* insert indent for function ins */
       for (int tc=0; tc<tabcount; tc++)
         std::cout<<"\t";
-      std::cout<<instrs[i]["dest"] << "<- "<<instrs[i]["op"]<<"(";
+      std::cout<<instrs[i]["dest"].asString() << "<- "<<instrs[i]["op"].asString()<<"(";
       for(int j=0; j<instrs[i]["args"].size(); j++)
-        std::cout<<instrs[i]["args"][j];
+        std::cout<<instrs[i]["args"][j].asString()<<",";
       std::cout<<")"<<std::endl;
     }
     else
@@ -46,21 +46,21 @@ void printins(unsigned int tabcount, const Json::Value& instrs)
       /* insert indent for function ins */
       for (int tc=0; tc<tabcount; tc++)
         std::cout<<"\t";
-      std::cout<<instrs[i]["name"] << std::endl;
+      std::cout<<instrs[i]["name"].asString() << std::endl;
     }
   }
 }
 
 void printfunction(const Json::Value& name, const Json::Value& args, const Json::Value& instrs)
 {
-    std::cout<<"diagraph "<<name<<" {"<<std::endl;
+    std::cout<<"diagraph "<<name.asString()<<" {"<<std::endl;
     printins(1, instrs);
     std::cout<<"}"<<std::endl;
 }
 
 
 int main()
-  {
+{
     Json::Value root;
     std::cin >> root;
     if(root==Json::nullValue)
