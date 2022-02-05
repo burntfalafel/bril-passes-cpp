@@ -14,7 +14,7 @@ void printins(unsigned int tabcount, const Json::Value& instrs)
       /* insert indent for function ins */
       for (int tc=0; tc<tabcount; tc++)
         std::cout<<"\t";
-      std::cout<<instrs[i]["dest"].asString() << std::endl;
+      std::cout<<instrs[i]["dest"].asString() << ";" << std::endl;
     }
     else if(instrs[i]["funcs"] != Json::nullValue)
     {
@@ -26,19 +26,27 @@ void printins(unsigned int tabcount, const Json::Value& instrs)
           std::cout<<"\t";
         std::cout<<instrs[i]["args"][j].asString();
         std::cout<<"-> "<<instrs[i]["funcs"][0].asString(); /* 0 harcoded since there can only be one function call */
-        std::cout<<std::endl;
+        std::cout<< ";" << std::endl;
       }
     }
-    else if (instrs[1]["args"] != Json::nullValue)
+    else if (instrs[i]["args"] != Json::nullValue)
     {
       /* Normal function call */
       /* insert indent for function ins */
       for (int tc=0; tc<tabcount; tc++)
         std::cout<<"\t";
-      std::cout<<instrs[i]["dest"].asString() << "<- "<<instrs[i]["op"].asString()<<"(";
       for(int j=0; j<instrs[i]["args"].size(); j++)
-        std::cout<<instrs[i]["args"][j].asString()<<",";
-      std::cout<<")"<<std::endl;
+      {
+        std::cout<<instrs[i]["args"][j].asString();
+        std::cout<<" -> ";
+        std::cout<<instrs[i]["op"].asString();
+        if(instrs[i]["dest"] != Json::nullValue)
+        {
+          for(int j=0; j<instrs[i]["dest"].size(); j++)
+          std::cout<< " -> "<<instrs[i]["dest"][j].asString();
+        }
+        std::cout<< ";" << std::endl;
+      }
     }
     else
     {
@@ -46,14 +54,14 @@ void printins(unsigned int tabcount, const Json::Value& instrs)
       /* insert indent for function ins */
       for (int tc=0; tc<tabcount; tc++)
         std::cout<<"\t";
-      std::cout<<instrs[i]["name"].asString() << std::endl;
+      std::cout<<instrs[i]["name"].asString() << ";" << std::endl;
     }
   }
 }
 
 void printfunction(const Json::Value& name, const Json::Value& args, const Json::Value& instrs)
 {
-    std::cout<<"diagraph "<<name.asString()<<" {"<<std::endl;
+    std::cout<<"digraph "<<name.asString()<<" {"<<std::endl;
     printins(1, instrs);
     std::cout<<"}"<<std::endl;
 }
