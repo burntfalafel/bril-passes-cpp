@@ -39,7 +39,7 @@ void unuseddcepass(const Json::Value& instrs)
   }
 
   std::ofstream dcefile;
-  dcefile.open("dce_opt.json");
+  dcefile.open("generated-dce.json");
 
   Json::StyledWriter styledwriter;
   dcefile << styledwriter.write(dce_instrs);
