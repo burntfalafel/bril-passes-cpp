@@ -24,17 +24,17 @@ void unuseddcepass(const Json::Value& instrs)
     }
   }
 
-
-
   for (int i=0; i<instrs.size(); i++)
   {
     /* second pass */
-    if(used.find(instrs[i]["dest"].asString()) != used.end())
+    
+    if(used.find(instrs[i]["dest"].asString()) != used.end() 
+        || (used.find(instrs[i]["args"][0].asString()) != used.end() 
+          && instrs[i]["dest"]==Json::nullValue))
     {
     dce_instrs.append(instrs[i]);
     }
     else {
-      std::cout<<"removed element" << std::endl;
     }
   }
 
