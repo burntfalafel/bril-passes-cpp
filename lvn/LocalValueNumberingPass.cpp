@@ -10,15 +10,30 @@
 #include <vector>
 
 Json::Value dce_instrs(Json::arrayValue);
+std::vector<std::string> opcomm = {"mul", "add"};
 
 class Table
 {
   private:
-    std::string dest_var;
-    unsigned int num;
-    std::string value;
-    std::string cann_var;
+    std::vector<std::string> dest_var;
+    std::vector<std::string> value_op;
+    std::vector<std::vector<std::string>> value_args;
+    std::vector<std::string> cann_var;
+    int tableentries=0;
+  public:
+    void createentry(std::string new_var, std::string new_value_op, std::vector<std::string> new_value_args)
+    {
+      dest_var[tableentries] = new_var;
+      if (std::find(cann_var.begin(), cann_var.end(), new_var) != cann_var.end())
+      {
+        std::cout << "Found duplicate";
+      }
+
+      value_op[tableentries] = new_value_op;
+      tableentries++;
+    }
 }; 
+
 int createtable()
 {
 
@@ -27,12 +42,18 @@ int createtable()
 
 void lvnpass()
 {
-  std::vector<std::string> dest_map;
+  Table table;
   for (auto instr: dce_instrs)
   {
-    dest_map.push_back(instr["dest"].asString());
+    std::vector<std::string> new_value_args;
+    for (auto iter: instr["args"])
+      new_value_args.push_back(iter.asString());
+    if(std::find(opcomm.begin(), opcomm.end(), instr["op"].asString()) != opcomm.end())
+    {
+      std::sort (new_value_args.begin(), new_value_args.end());
+    }
+    table.createentry(instr["dest"].asString(), instr["op"].asString(), new_value_args);
   }
-
 }
 
 void writetofile(std::string filename)
@@ -49,6 +70,7 @@ void writetofile(std::string filename)
 
 void locallvnpass(Json::Value& instrs)
 {
+  lvnpass();
   writetofile("generated-lvn.json");
 }
 
