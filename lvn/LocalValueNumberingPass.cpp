@@ -9,41 +9,58 @@
 #include <algorithm>
 #include <vector>
 
-Json::Value dce_instrs(Json::arrayValue);
+Json::Value bril_instrs(Json::arrayValue);
 std::vector<std::string> opcomm = {"mul", "add"};
 
 class Table
 {
   private:
-    std::vector<std::string> dest_var;
-    std::vector<std::string> value_op;
-    std::vector<std::vector<std::string>> value_args;
-    std::vector<std::string> cann_var;
-    int tableentries=0;
+    std::map<int, std::vector<std::string>> dest_map;
+    std::map<int, std::string> value_op;
+    std::map<int, std::vector<std::string>> value_args;
+    std::map<int, std::string> cann_var;
+    int row=0;
   public:
     void createentry(std::string new_var, std::string new_value_op, std::vector<std::string> new_value_args)
     {
-      dest_var[tableentries] = new_var;
-      if (std::find(cann_var.begin(), cann_var.end(), new_var) != cann_var.end())
+      dest_map[row].push_back(new_var);
+      if ((std::find(value_op.begin(), value_op.end(), new_value_op) != value_op.end()) && (std::search(value_args[row].begin(),
+              value_args[row].end(), new_value_args.begin(), new_value_args.end()) != value_args[row].end()))
       {
-        std::cout << "Found duplicate";
+        /* other columns in table do not need update as it is a duplicate */
+        return;
       }
-
-      value_op[tableentries] = new_value_op;
-      tableentries++;
+      value_op[row]  = new_value_op;
+      value_args[row] = new_value_args;
+      cann_var[row] = new_value_op; /* assign cannonincal variable the same as referred */
+      row++; /* next row */
     }
+    void afterlvnir()
+    {
+      int destrow;
+      for (int iterrow=0; iterrow<row; iterrow++)
+      {
+        for (auto arglist: value_args[iterrow])
+          for (auto singlearg: arglist)
+          {
+            for (destrow=0; destrow<row; destrow++)
+              if(std::find(dest_map[destrow].begin(), dest_map[destrow].end(), singlearg) != dest_map[destrow].end())
+                break;
+            //std::replace(dest_map[iterrow].begin(), dest_map[iterrow].end(), singlearg, std::to_string(destrow) );
+            for(auto iter: dest_map[iterrow])
+              if(iter.compare(singlearg))
+                iter = destrow;
+          }
+      }
+    }
+
 }; 
 
-int createtable()
-{
-
-
-}
 
 void lvnpass()
 {
   Table table;
-  for (auto instr: dce_instrs)
+  for (auto instr: bril_instrs)
   {
     std::vector<std::string> new_value_args;
     for (auto iter: instr["args"])
@@ -54,6 +71,7 @@ void lvnpass()
     }
     table.createentry(instr["dest"].asString(), instr["op"].asString(), new_value_args);
   }
+  table.afterlvnir();
 }
 
 void writetofile(std::string filename)
